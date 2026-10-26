@@ -6,6 +6,3 @@ public class Note
     public DateTime CreatedAt {get; set;}
 } 
 
-public record CreateNoteDto(string Title, string Content);
-public record NoteDto(int Id, string Title, string Content, DateTime CreatedAt);
-
