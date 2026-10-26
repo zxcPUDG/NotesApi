@@ -1,24 +1,115 @@
-Project name: NoteApi
+# NotesApi
 
-Stack: ASP.NET Core Minimal API, EF Core, PostgreSQL, SwaggerUI
+A simple REST API for notes. You can create, read, update, delete and search notes.
 
-List of endpoints:
-- GET /notes 
-- GET /notes/{id}
-- POST /notes
-- PUT /notes/{id}
-- DELTE /notes/{id}
+## Tech stack
 
-Steps to launch:
+- ASP.NET Core Minimal API
+- Entity Framework Core (EF Core)
+- PostgreSQL (with the Npgsql provider)
+- Swagger UI for testing the API
 
-1. What needs to be installed in advance: .NET SDK and PostgreSQL.
+## Features
 
-2. Download the project: use the git clone command and provide the address of your repository.
+- CRUD operations for notes
+- Search notes by title (not case-sensitive): `GET /notes?search=text`
+- DTOs: the API accepts and returns only the needed fields
+- Input check: the title is required
+- Database migrations with EF Core
 
-3. Create the appsettings.Development.json file with the connection string. The file is intentionally missing from the repository, so the reader must know that they need to create it themselves.
+## Endpoints
 
-4. Apply migrations: dotnet ef database update (you need the dotnet-ef tool, which is installed using the command dotnet tool install --global dotnet-ef).
+| Method | URL | Description | Success response |
+|---|---|---|---|
+| GET | `/notes` | Get all notes. Optional: `?search=text` | 200 OK |
+| GET | `/notes/{id}` | Get one note | 200 OK (or 404 Not Found) |
+| POST | `/notes` | Create a note | 201 Created (or 400 Bad Request) |
+| PUT | `/notes/{id}` | Update a note | 204 No Content (or 400 / 404) |
+| DELETE | `/notes/{id}` | Delete a note | 204 No Content (or 404) |
 
-5. Run: dotnet run.
+Example request body for `POST /notes` and `PUT /notes/{id}`:
 
-6. Open Swagger in the browser: the address will be in the form https://localhost:port/swagger; the port will be printed in the console at startup.
+```json
+{
+  "title": "Buy bread",
+  "content": "At the shop"
+}
+```
+
+Example response for `GET /notes/1`:
+
+```json
+{
+  "id": 1,
+  "title": "Buy bread",
+  "content": "At the shop",
+  "createdAt": "2026-10-17T18:56:09Z"
+}
+```
+
+## Getting started
+
+### Requirements
+
+- .NET SDK (the target version is in `NotesApi.csproj`)
+- PostgreSQL
+- Git
+
+### Steps
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/zxcPUDG/NotesApi.git
+   cd NotesApi
+   ```
+
+2. Create the file `appsettings.Development.json` in the project folder and add your connection string:
+
+   ```json
+   {
+     "ConnectionStrings": {
+       "Default": "Host=localhost;Port=5432;Database=notesdb;Username=postgres;Password=YOUR_PASSWORD"
+     }
+   }
+   ```
+
+   This file is not in the repository because it contains a password. Git ignores it.
+
+3. Install the EF Core tool (one time):
+
+   ```bash
+   dotnet tool install --global dotnet-ef
+   ```
+
+4. Create the database and the tables:
+
+   ```bash
+   dotnet ef database update
+   ```
+
+5. Run the application:
+
+   ```bash
+   dotnet run
+   ```
+
+6. Open Swagger in your browser: the address from the console plus `/swagger`, for example `https://localhost:7000/swagger`. Swagger is enabled only in the Development environment, which `dotnet run` uses by default.
+
+## Project structure
+
+```text
+NotesApi/
+├── Program.cs         # application setup and endpoints
+├── Note.cs            # the Note entity
+├── AppDbContext.cs    # EF Core database context
+├── Migrations/        # database migrations
+└── appsettings.json   # settings (the password is a placeholder)
+```
+
+## Roadmap
+
+- Layered architecture (controllers, services, repositories)
+- Authentication with JWT
+- Unit and integration tests
+- Docker and CI (GitHub Actions)
