@@ -80,24 +80,6 @@ app.MapDelete("/notes/{id}", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
     return Results.NoContent();
 });
-
-// app.MapGet("/test", async (AppDbContext db) =>
-// {
-//     // DbSet<Note> a = db.Notes;
-//     // var b = db.Notes.Where(n => n.Id > 3);
-//     // List<Note> c = await db.Notes.Where(n => n.Id > 3).ToListAsync();
-//     // Note? d = await db.Notes.FirstOrDefaultAsync(n => n.Title == "zxc");
-//     // int e = await db.Notes.CountAsync();
-//     // bool f = await db.Notes.AnyAsync();
-//     // var g = db.Notes.Select(n => n.Title);
-//     // return Results.Ok();
-
-//     var z = await db.Notes.Where(t => t.Title.Contains("te")).OrderByDescending(t => t.CreatedAt).Take(2).Select(t => t.Title).ToListAsync();
-//     return Results.Ok(z);
-
-
-// });
-
  
 if (app.Environment.IsDevelopment())
 {
