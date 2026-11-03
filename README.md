@@ -1,5 +1,5 @@
-# NotesApi
-
+# NoteApi
+Hi! My name is Adele, I’m 18 years old, and I’m a backend developer.
 A simple REST API for notes. You can create, read, update, delete and search notes.
 
 ## Tech stack

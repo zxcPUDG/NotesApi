@@ -1,83 +1,49 @@
-using NoteApi.Dtos;
-using Microsoft.EntityFrameworkCore;
+using NotesApi.Dtos;
+using NotesApi.Service;
 
-namespace NoteApi.Endpoints;
+namespace NotesApi.Endpoints;
 
 public static class NoteEndpoints
 {
     public static void MapNoteEndpoints(this WebApplication app)
     {
-        app.MapGet("/notes", async (AppDbContext db, string? search ) =>
+        app.MapGet("/notes", async (string? search, INoteService service) =>
         {
-            if (string.IsNullOrWhiteSpace(search))
-            {
-                List<NoteDto> x = await db.Notes.Select(b => new NoteDto(b.Id, b.Title, b.Content, b.CreatedAt)).ToListAsync();
-                return Results.Ok(x);
-            }
-            else
-            {
-                List<NoteDto> x = await db.Notes.Where(b => b.Title.ToLower().Contains(search.ToLower())).Select(b => new NoteDto(b.Id,b.Title, b.Content, b.CreatedAt)).ToListAsync();
-                return Results.Ok(x);
-            }
+            List<NoteDto> result = await service.GetAllAsync(search);
+            return Results.Ok(result);
         });
 
-
-        app.MapGet("/notes/{id}", async (int id, AppDbContext db) =>
+        app.MapGet("/notes/{id}", async (int id, INoteService service) =>
         {
-            Note? x = await db.Notes.FindAsync(id);
-            if ( x is null) {return Results.NotFound();}
-            else
-            {
-                NoteDto dto = new NoteDto(x.Id, x.Title, x.Content, x.CreatedAt);
-                return Results.Ok(dto);
-            }
+            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
+
+            NoteDto? result = await service.GetByIdAsync(id);
+            return result is not null ? Results.Ok(result) : Results.NotFound();
         });
 
-        app.MapPost("/notes", async (CreateNoteDto dto, AppDbContext db) =>
+        app.MapPost("/notes", async (CreateNoteDto input, INoteService service) =>
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                return Results.BadRequest("Title обязателен");
+            if (string.IsNullOrWhiteSpace(input.Title)) return Results.BadRequest("Title не может быть пустым");
 
-            var note = new Note
-            {
-                Title = dto.Title,
-                Content = dto.Content,
-                CreatedAt = DateTime.UtcNow
-            };
-            db.Notes.Add(note);
-            await db.SaveChangesAsync();
-
-            var result = new NoteDto(note.Id, note.Title, note.Content, note.CreatedAt);
-            return Results.Created($"/notes/{note.Id}", result);
+            NoteDto result = await service.CreateAsync(input);
+            return Results.Created($"/notes/{result.Id}", result);
         });
 
-        app.MapPut("/notes/{id}", async (int id, CreateNoteDto input, AppDbContext db) =>
-        {   
-            if (string.IsNullOrWhiteSpace(input.Title))
-                return Results.BadRequest("Title обязателен");
-
-            Note? note = await db.Notes.FindAsync(id);
-
-            if (note is null) 
-                return Results.NotFound();
-
-            
-            note.Title = input.Title;
-            note.Content = input.Content;
-            await db.SaveChangesAsync();
-            return Results.NoContent();
-        });
-
-        app.MapDelete("/notes/{id}", async (int id, AppDbContext db) =>
+        app.MapPut("/notes/{id}", async (int id, CreateNoteDto input, INoteService service) =>
         {
-            var note = await db.Notes.FindAsync(id);
+            if (string.IsNullOrWhiteSpace(input.Title)) return Results.BadRequest("Title не может быть пустым");
+            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
 
-            if (note is null) return Results.NotFound();
-
-            db.Notes.Remove(note);
-            await db.SaveChangesAsync();
-            return Results.NoContent();
+            bool updated = await service.UpdateAsync(id, input);
+            return updated ? Results.NoContent() : Results.NotFound();
         });
 
+        app.MapDelete("/notes/{id}", async (int id, INoteService service) =>
+        {
+            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
+
+            bool deleted = await service.DeleteAsync(id);
+            return deleted ? Results.NoContent() : Results.NotFound();
+        });
     }
 }
