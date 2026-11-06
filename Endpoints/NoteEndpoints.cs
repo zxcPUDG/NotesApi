@@ -15,35 +15,26 @@ public static class NoteEndpoints
 
         app.MapGet("/notes/{id}", async (int id, INoteService service) =>
         {
-            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
-
-            NoteDto? result = await service.GetByIdAsync(id);
-            return result is not null ? Results.Ok(result) : Results.NotFound();
+            NoteDto result = await service.GetByIdAsync(id);
+            return Results.Ok(result);
         });
 
         app.MapPost("/notes", async (CreateNoteDto input, INoteService service) =>
         {
-            if (string.IsNullOrWhiteSpace(input.Title)) return Results.BadRequest("Title не может быть пустым");
-
             NoteDto result = await service.CreateAsync(input);
             return Results.Created($"/notes/{result.Id}", result);
         });
 
         app.MapPut("/notes/{id}", async (int id, CreateNoteDto input, INoteService service) =>
         {
-            if (string.IsNullOrWhiteSpace(input.Title)) return Results.BadRequest("Title не может быть пустым");
-            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
-
-            bool updated = await service.UpdateAsync(id, input);
-            return updated ? Results.NoContent() : Results.NotFound();
+            await service.UpdateAsync(id, input);
+            return Results.NoContent();
         });
 
         app.MapDelete("/notes/{id}", async (int id, INoteService service) =>
         {
-            if (id <= 0) return Results.BadRequest("id должен быть больше 0");
-
-            bool deleted = await service.DeleteAsync(id);
-            return deleted ? Results.NoContent() : Results.NotFound();
+            await service.DeleteAsync(id);
+            return Results.NoContent();
         });
     }
 }
