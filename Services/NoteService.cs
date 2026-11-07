@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using NotesApi.Dtos;
 using NotesApi.Exceptions;
@@ -8,20 +9,22 @@ namespace NotesApi.Service;
 public class NoteService : INoteService
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<NoteService> _logger;
 
-    public NoteService(AppDbContext db)
+    public NoteService(AppDbContext db, ILogger<NoteService> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     public async Task<List<NoteDto>> GetAllAsync(string? search)
     {   
         string normalizedSearch = search?.Trim().ToLower() ?? "";
-
         return await _db.Notes
             .Where(note => note.Title.ToLower().Contains(normalizedSearch))
             .Select(note => new NoteDto(note.Id, note.Title, note.Content, note.CreatedAt))
             .ToListAsync();
+
     }
 
     public async Task<NoteDto> GetByIdAsync(int id)
@@ -46,6 +49,8 @@ public class NoteService : INoteService
         _db.Notes.Add(note);
         await _db.SaveChangesAsync();
 
+        _logger.LogInformation("Created note with Id {NoteId} and Title {Title}", note.Id, note.Title);
+        
         return ToDto(note);
     }
 
@@ -60,6 +65,8 @@ public class NoteService : INoteService
         note.Title = input.Title;
         note.Content = input.Content;
         await _db.SaveChangesAsync();
+        _logger.LogInformation("Update note id {id}",id);
+
     }
 
     public async Task DeleteAsync(int id)
@@ -71,6 +78,7 @@ public class NoteService : INoteService
 
         _db.Notes.Remove(note);
         await _db.SaveChangesAsync();
+        _logger.LogInformation("Delted note id {id}",id);
     }
 
     private static NoteDto ToDto(Note note)
@@ -79,6 +87,7 @@ public class NoteService : INoteService
     private static void ValidateId(int id)
     {
         if (id <= 0) 
+            
             throw new ValidationException("id должен быть больше нуля");   
     }
     private static void ValidateTitle(string title)

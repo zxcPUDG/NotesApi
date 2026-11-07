@@ -21,7 +21,9 @@ public class ErrorHandlingMiddleware
             await _next(context);
         }
         catch(ValidationException ex)
-        {
+        {   
+            _logger.LogWarning("Validation failed: {message}",ex.Message);
+
             context.Response.StatusCode = 400;
 
             var problem = new ProblemDetails
@@ -34,7 +36,9 @@ public class ErrorHandlingMiddleware
             await context.Response.WriteAsJsonAsync(problem);
         }
         catch (NotFoundException ex)
-        {
+        {   
+            _logger.LogWarning("Resurs not found: {message}", ex.Message);
+
             context.Response.StatusCode = 404;
 
             var problem = new ProblemDetails
