@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using NotesApi.Dtos;
 using NotesApi.Exceptions;
 
 
-namespace NotesApi.Service;
+namespace NotesApi.Services;
 
 public class NoteService : INoteService
 {
@@ -65,7 +64,7 @@ public class NoteService : INoteService
         note.Title = input.Title;
         note.Content = input.Content;
         await _db.SaveChangesAsync();
-        _logger.LogInformation("Update note id {id}",id);
+        _logger.LogInformation("Updated note with Id {Id} and Title {Title}",id, input.Title);
 
     }
 
@@ -78,7 +77,7 @@ public class NoteService : INoteService
 
         _db.Notes.Remove(note);
         await _db.SaveChangesAsync();
-        _logger.LogInformation("Delted note id {id}",id);
+        _logger.LogInformation("Deleted note with Id {Id}",id);
     }
 
     private static NoteDto ToDto(Note note)
@@ -88,7 +87,7 @@ public class NoteService : INoteService
     {
         if (id <= 0) 
             
-            throw new ValidationException("id должен быть больше нуля");   
+            throw new ValidationException("Id должен быть больше нуля");   
     }
     private static void ValidateTitle(string title)
     {

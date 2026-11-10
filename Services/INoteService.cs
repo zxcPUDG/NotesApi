@@ -1,5 +1,5 @@
 using NotesApi.Dtos;
-namespace NotesApi.Service;
+namespace NotesApi.Services;
 public interface INoteService
 {
     Task<List<NoteDto>> GetAllAsync(string? search);

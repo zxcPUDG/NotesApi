@@ -22,48 +22,37 @@ public class ErrorHandlingMiddleware
         }
         catch(ValidationException ex)
         {   
-            _logger.LogWarning("Validation failed: {message}",ex.Message);
+            _logger.LogWarning("Validation failed: {Message}",ex.Message);
 
-            context.Response.StatusCode = 400;
+            await WriteProblemAsync(context,400,"Bad Request",ex.Message);
 
-            var problem = new ProblemDetails
-            {
-                Status = 400,
-                Title = "Bad Request",
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
         }
         catch (NotFoundException ex)
         {   
-            _logger.LogWarning("Resurs not found: {message}", ex.Message);
+            _logger.LogWarning("Not found: {Message}", ex.Message);
 
-            context.Response.StatusCode = 404;
-
-            var problem = new ProblemDetails
-            {
-                Status = 404,
-                Title = "Not Found",
-                Detail = ex.Message
-            };
-
-            await context.Response.WriteAsJsonAsync(problem);
+             await WriteProblemAsync(context,404,"Not Found",ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception");
 
-            context.Response.StatusCode = 500;
+            await WriteProblemAsync(context,500,"Internal Server Error","Internal Server Error");
+        }
+    }
+
+    private async Task WriteProblemAsync(HttpContext context, int status, string title, string detail)
+    {       
+            
+            context.Response.StatusCode = status;
 
             var problem = new ProblemDetails
             {
-                Status = 500,
-                Title = "Internal Server Error",
-                Detail = "Internal server error"
+                Status = status,
+                Title = title,
+                Detail = detail
             };
 
             await context.Response.WriteAsJsonAsync(problem);
-        }
     }
 }

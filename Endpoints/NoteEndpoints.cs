@@ -1,5 +1,5 @@
 using NotesApi.Dtos;
-using NotesApi.Service;
+using NotesApi.Services;
 
 namespace NotesApi.Endpoints;
 

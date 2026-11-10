@@ -1,6 +1,6 @@
 using NotesApi.Endpoints;
 using Microsoft.EntityFrameworkCore;
-using NotesApi.Service;
+using NotesApi.Services;
 using NotesApi.Middleware;
 
 
