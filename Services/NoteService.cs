@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NotesApi.Dtos;
 using NotesApi.Exceptions;
+using FluentValidation;
+
 
 
 namespace NotesApi.Services;
@@ -9,11 +11,13 @@ public class NoteService : INoteService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<NoteService> _logger;
+    private readonly IValidator<CreateNoteDto> _validator;
 
-    public NoteService(AppDbContext db, ILogger<NoteService> logger)
+    public NoteService(AppDbContext db, ILogger<NoteService> logger, IValidator<CreateNoteDto> validator)
     {
         _db = db;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<List<NoteDto>> GetAllAsync(string? search)
@@ -36,7 +40,7 @@ public class NoteService : INoteService
 
     public async Task<NoteDto> CreateAsync(CreateNoteDto input)
     {   
-        ValidateTitle(input.Title);
+        await _validator.ValidateAndThrowAsync(input);
 
         Note note = new Note
         {
@@ -54,8 +58,8 @@ public class NoteService : INoteService
     }
 
     public async Task UpdateAsync(int id, CreateNoteDto input)
-    {   
-        ValidateTitle(input.Title);
+    {
+        await _validator.ValidateAndThrowAsync(input);
         ValidateId(id);
 
         Note note = await _db.Notes.FindAsync(id) 
@@ -87,12 +91,6 @@ public class NoteService : INoteService
     {
         if (id <= 0) 
             
-            throw new ValidationException("Id должен быть больше нуля");   
-    }
-    private static void ValidateTitle(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title)) 
-                throw new ValidationException("Title не может быть пустым");
-    }
-
+            throw new BadRequestException("Id must more than 0");   
+    
 }
