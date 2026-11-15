@@ -23,11 +23,15 @@ public class NoteService : INoteService
     public async Task<List<NoteDto>> GetAllAsync(string? search)
     {   
         string normalizedSearch = search?.Trim().ToLower() ?? "";
-        return await _db.Notes
+
+        var notes = await _db.Notes
             .Where(note => note.Title.ToLower().Contains(normalizedSearch))
             .Select(note => new NoteDto(note.Id, note.Title, note.Content, note.CreatedAt))
             .ToListAsync();
 
+        _logger.LogInformation("Received {Count} notes", notes.Count);
+
+        return notes;
     }
 
     public async Task<NoteDto> GetByIdAsync(int id)
@@ -35,6 +39,7 @@ public class NoteService : INoteService
         ValidateId(id);
         Note note = await _db.Notes.FindAsync(id) 
             ?? throw new NotFoundException($"Note {id} not found");
+        
         return ToDto(note);
     }
 
@@ -52,7 +57,7 @@ public class NoteService : INoteService
         _db.Notes.Add(note);
         await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Created note with Id {NoteId} and Title {Title}", note.Id, note.Title);
+        _logger.LogInformation("Created note with Id {NoteId}", note.Id);
         
         return ToDto(note);
     }
@@ -92,5 +97,5 @@ public class NoteService : INoteService
         if (id <= 0) 
             
             throw new BadRequestException("Id must more than 0");   
-    
+    }
 }

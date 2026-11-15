@@ -483,5 +483,9 @@ $RECYCLE.BIN/
 
 
 # zxc
-appsettings.Development.json
+bin/
+obj/
+.vs/
 .vscode/
+appsettings.Development.json
+logs/

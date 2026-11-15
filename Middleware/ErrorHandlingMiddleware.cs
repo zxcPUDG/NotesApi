@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc; 
 using NotesApi.Exceptions;      
 using FluentValidation;
-using NotesApi.Dtos;
 
 namespace NotesApi.Middleware;
 
@@ -37,8 +36,8 @@ public class ErrorHandlingMiddleware
             ValidationProblemDetails problem = new()
             {
                 Status = 400,
-                Title = "Validation failed",
-                Detail = ex.Message,
+                Title = "BadRequest",
+                Detail = "Validation failed",
                 Errors = errors
             };
             await context.Response.WriteAsJsonAsync(problem);

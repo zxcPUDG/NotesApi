@@ -1,18 +1,24 @@
 using FluentValidation;
+using Microsoft.Extensions.Options;
 using NotesApi.Dtos;
+using NotesApi.Settings;
 
 namespace NotesApi.Validators;
 
 public class CreateNoteDtoValidator : AbstractValidator<CreateNoteDto>
 {
-    public CreateNoteDtoValidator()
-    {
+    public CreateNoteDtoValidator(IOptions<NoteLimitsOptions> options)
+    {   
+        var limits = options.Value;
+
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required")
-            .MaximumLength(100).WithMessage("Title must be at most 100 characters");
+            .MaximumLength(limits.TitleMaxLength)
+            .WithMessage($"Title must be at most {limits.TitleMaxLength} characters");
 
         RuleFor(x => x.Content)
             .NotNull().WithMessage("Content is required")
-            .MaximumLength(5000).WithMessage("Content must be at most 5000 characters");
+            .MaximumLength(limits.ContentMaxLength)
+            .WithMessage($"Content must be at most {limits.ContentMaxLength} characters");
     }   
 }
