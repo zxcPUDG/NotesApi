@@ -8,4 +8,6 @@ public class NoteLimitsOptions
     public int TitleMaxLength {get;set;}
     [Range(1, 50000)]
     public int ContentMaxLength {get;set;}
+    [Range(1,200)]
+    public int TagNameMaxLength {get;set;}
 }

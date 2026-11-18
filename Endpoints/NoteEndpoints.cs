@@ -7,9 +7,9 @@ public static class NoteEndpoints
 {
     public static void MapNoteEndpoints(this WebApplication app)
     {
-        app.MapGet("/notes", async (string? search, INoteService service) =>
+        app.MapGet("/notes", async (string? search, string[]? tags, INoteService service) =>
         {
-            List<NoteDto> result = await service.GetAllAsync(search);
+            List<NoteDto> result = await service.GetAllAsync(search, tags);
             return Results.Ok(result);
         });
 

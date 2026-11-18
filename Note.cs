@@ -5,5 +5,6 @@ public class Note
     public string Title {get; set;} = "";
     public string Content {get; set;} = "";
     public DateTime CreatedAt {get; set;}
+    public List<Tag> Tags { get; set; } = new ();
 } 
 

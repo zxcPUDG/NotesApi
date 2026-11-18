@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotesApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261017140409_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20261116202504_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,53 @@ namespace NotesApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Notes");
+                });
+
+            modelBuilder.Entity("NoteTag", b =>
+                {
+                    b.Property<int>("NotesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("NotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("NoteTag");
+                });
+
+            modelBuilder.Entity("Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("NoteTag", b =>
+                {
+                    b.HasOne("Note", null)
+                        .WithMany()
+                        .HasForeignKey("NotesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
